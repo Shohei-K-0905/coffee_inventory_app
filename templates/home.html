@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ホーム</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>熊本Cafe 在庫管理システム</title>
+</head>
+<body>
+    <div class="container">
+    <h1>熊本Cafe 在庫管理システム</h1>
+    <ul>
+        <li><a href="{{ url_for('show_inventory') }}">在庫一覧</a></li>
+        <li><a href="{{ url_for('product_list') }}">取り扱い商品一覧</a></li>
+        <li><a href="{{ url_for('show_suppliers') }}">仕入先一覧</a></li>
+        <li><a href="{{ url_for('create_order') }}">新規発注</a></li>
+        <li><a href="{{ url_for('show_purchase_orders') }}">発注履歴</a></li>
+        <li><a href="{{ url_for('show_order_items') }}">発注商品一覧</a></li>
+        <li><a href="{{ url_for('show_inventory_history') }}">在庫履歴一覧</a></li>
+    </ul>
+    </div>
+</body>
+</html>

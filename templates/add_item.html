@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>商品追加</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>在庫追加</title>
+</head>
+<body>
+    <div class="container">
+    <h1>在庫を追加</h1>
+    <form method="POST">
+        <label>商品名: <input type="text" name="name" required></label><br>
+        <label>数量: <input type="number" name="quantity" required></label><br>
+        <label>価格: <input type="number" step="0.01" name="price" required></label><br>
+        <button type="submit">追加</button>
+    </form>
+    <a href="{{ url_for('show_inventory') }}">在庫一覧に戻る</a>
+    </div>
+</body>
+</html>

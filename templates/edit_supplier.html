@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>仕入先編集</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>仕入先編集</title>
+</head>
+<body>
+    <div class="container">
+    <h1>仕入先編集</h1>
+    <form method="POST">
+        <label>名前: <input type="text" name="name" value="{{ supplier['name'] }}" required></label><br>
+        <label>住所: <input type="text" name="address" value="{{ supplier['address'] or '' }}"></label><br>
+        <label>電話番号: <input type="text" name="phone" value="{{ supplier['phone'] or '' }}"></label><br>
+        <label>メールアドレス: <input type="email" name="email" value="{{ supplier['email'] or '' }}"></label><br>
+        <label>連絡先: <input type="text" name="contact_info" value="{{ supplier['contact_info'] or '' }}"></label><br>
+        <button type="submit">保存</button>
+    </form>
+
+    <a href="{{ url_for('show_suppliers') }}">仕入先一覧に戻る</a>
+    </div>
+</body>
+</html>

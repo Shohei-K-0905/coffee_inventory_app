@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>発注商品一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>発注商品一覧</title>
+</head>
+<body>
+    <div class="container">
+    <h1>発注商品一覧</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>発注ID</th>
+                <th>在庫ID</th>
+                <th>数量</th>
+                <th>単価</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order_items %}
+            <tr>
+                <td>{{ item['id'] }}</td>
+                <td>{{ item['purchase_order_id'] }}</td>
+                <td>{{ item['inventory_item_id'] }}</td>
+                <td>{{ item['quantity_ordered'] }}</td>
+                <td>{{ item['unit_price'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>

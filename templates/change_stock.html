@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>在庫増減</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>在庫増減</title>
+</head>
+<body>
+    <div class="container">
+    <h1>{{ item['name'] }} の在庫増減</h1>
+    <form method="POST">
+        <label>数量増減（例: 入荷は正、販売や紛失は負）: 
+            <input type="number" name="quantity_change" step="1" required>
+        </label><br>
+        <label>理由:
+            <select name="change_reason">
+                <option value="入荷">入荷</option>
+                <option value="販売">販売</option>
+                <option value="紛失">紛失</option>
+                <option value="その他">その他</option>
+            </select>
+        </label><br>
+        <button type="submit">記録</button>
+    </form>
+    <a href="{{ url_for('show_inventory') }}">在庫一覧に戻る</a>
+    </div>
+</body>
+</html>

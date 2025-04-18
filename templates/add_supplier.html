@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>仕入先追加</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>仕入先追加</title>
+</head>
+<body>
+    <div class="container">
+    <h1>仕入先追加</h1>
+    <form method="POST">
+        <label>名前: <input type="text" name="name" required></label><br>
+        <label>住所: <input type="text" name="address"></label><br>
+        <label>電話番号: <input type="text" name="phone"></label><br>
+        <label>メールアドレス: <input type="email" name="email"></label><br>
+        <label>連絡先: <input type="text" name="contact_info"></label><br>
+        <button type="submit">追加</button>
+    </form>
+    <a href="{{ url_for('show_suppliers') }}">仕入先一覧に戻る</a>
+    </div>
+</body>
+</html>

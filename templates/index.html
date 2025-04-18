@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>在庫一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+    <h1>在庫一覧</h1>
+    <a href="{{ url_for('add_item') }}">新しい商品を追加</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>価格</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item['id'] }}</td>
+                <td>{{ item['name'] }}</td>
+                <td>{{ item['quantity'] }}</td>
+                <td>{{ item['price'] }}</td>
+                <td> <a href="{{ url_for('change_stock', item_id=item['id']) }}">在庫増減</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h2>入荷待ち</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>発注ID</th>
+                <th>商品名</th>
+                <th>数量</th>
+                <th>単価</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inc in incoming %}
+            <tr>
+                <td>{{ inc['purchase_order_id'] }}</td>
+                <td>{{ inc['item_name'] }}</td>
+                <td>{{ inc['quantity_ordered'] }}</td>
+                <td>{{ inc['unit_price'] }}</td>
+                <td>
+                    <form method="POST" action="{{ url_for('receive_item', order_item_id=inc['id']) }}" style="display:inline;">
+                        <button type="submit">入荷済みにする</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>在庫履歴</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>在庫履歴一覧</title>
+</head>
+<body>
+    <div class="container">
+    <h1>在庫履歴一覧</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>在庫ID</th>
+                <th>変更日</th>
+                <th>数量変動</th>
+                <th>理由</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for history in inventory_history %}
+            <tr>
+                <td>{{ history['id'] }}</td>
+                <td>{{ history['inventory_item_id'] }}</td>
+                <td>{{ history['change_date'] }}</td>
+                <td>{{ history['quantity_change'] }}</td>
+                <td>{{ history['change_reason'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>

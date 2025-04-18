@@ -1,0 +1,94 @@
+/*
+ coffee_inventory_app/static/style.css
+ 落ち着いた優しい感じのデザイン
+*/
+body {
+    background: #f5f7fa;
+    color: #333;
+    font-family: 'Yu Gothic', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+h1, h2, h3 {
+    color: #4a5c6a;
+    font-weight: 600;
+}
+
+a {
+    color: #6c8c9b;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: #3a5a6a;
+}
+
+header, footer {
+    background: #e9ecef;
+    padding: 1em 2em;
+    border-radius: 0 0 8px 8px;
+    margin-bottom: 2em;
+}
+
+.container {
+    background: #fff;
+    margin: 2em auto;
+    padding: 2em;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(80, 110, 120, 0.08);
+    max-width: 900px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #f8fafb;
+    margin-bottom: 2em;
+}
+table th, table td {
+    padding: 0.8em 0.5em;
+    border-bottom: 1px solid #dde3ea;
+    text-align: left;
+}
+table th {
+    background: #e0e7ef;
+    color: #4a5c6a;
+}
+table tr:hover {
+    background: #f0f4f8;
+}
+
+button, input[type="submit"], input[type="button"] {
+    background: #bcd2e8;
+    color: #2c3e50;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5em 1.2em;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover, input[type="submit"]:hover, input[type="button"]:hover {
+    background: #a3bed6;
+}
+
+form {
+    margin-bottom: 1.5em;
+}
+
+input, select, textarea {
+    border: 1px solid #bfcad6;
+    border-radius: 4px;
+    padding: 0.5em;
+    font-size: 1em;
+    background: #f9fafb;
+    margin-bottom: 1em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+::-webkit-input-placeholder { color: #b0b8be; }
+:-moz-placeholder { color: #b0b8be; }
+::-moz-placeholder { color: #b0b8be; }
+:-ms-input-placeholder { color: #b0b8be; }

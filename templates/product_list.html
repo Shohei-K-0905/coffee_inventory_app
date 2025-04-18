@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>取り扱い商品一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+    <h1>取り扱い商品一覧</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>商品名</th>
+                <th>価格</th>
+                <th>発注単位</th>
+                <th>仕入れ先</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product['name'] }}</td>
+                <td>{{ product['price'] }} 円</td>
+                <td>{{ product['order_unit'] }}</td>
+                <td>{{ product['supplier_name'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>

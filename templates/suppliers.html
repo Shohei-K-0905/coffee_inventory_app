@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>仕入先一覧</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <meta charset="UTF-8">
+    <title>仕入先一覧</title>
+</head>
+<body>
+    <div class="container">
+    <h1>仕入先一覧</h1>
+    <a href="{{ url_for('add_supplier') }}">仕入先を追加</a>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>名前</th>
+                <th>連絡先</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for supplier in suppliers %}
+            <tr>
+                <td>{{ supplier['id'] }}</td>
+                <td>{{ supplier['name'] }}</td>
+                <td>{{ supplier['contact_info'] }}</td>
+                <td>
+                    <a href="{{ url_for('edit_supplier', supplier_id=supplier['id']) }}">編集</a>
+                    <form action="{{ url_for('delete_supplier', supplier_id=supplier['id']) }}" method="post" style="display:inline;">
+                        <button type="submit" onclick="return confirm('本当に削除しますか？');">削除</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>

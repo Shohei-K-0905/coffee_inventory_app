@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>発注作成</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+    function updateTotal() {
+        const price = parseFloat(document.getElementById('price').value) || 0;
+        const quantity = parseInt(document.getElementById('quantity').value) || 0;
+        document.getElementById('total').value = price * quantity;
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+    <h1>発注作成</h1>
+    <form method="POST" action="{{ url_for('create_order') }}" id="orderForm">
+        <label>発注日時: <input type="datetime-local" name="order_date" value="{{ now }}" required></label><br>
+        <label>仕入れ先:
+            <select name="supplier_id" required>
+                {% for supplier in suppliers %}
+                <option value="{{ supplier['id'] }}">{{ supplier['name'] }}</option>
+                {% endfor %}
+            </select>
+        </label><br>
+        <table id="orderTable">
+            <thead>
+                <tr>
+                    <th>商品</th>
+                    <th>価格</th>
+                    <th>個数</th>
+                    <th>小計</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="orderBody">
+                <tr>
+                    <td>
+                        <select name="item_id[]" class="item-select" required onchange="updateRow(this)">
+                            {% for item in items %}
+                            <option value="{{ item['id'] }}" data-price="{{ item['price'] }}">{{ item['name'] }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td><input type="number" name="price[]" class="price-input" value="{{ items[0]['price'] if items else '' }}" readonly></td>
+                    <td><input type="number" name="quantity[]" class="quantity-input" value="1" min="1" onchange="updateRow(this)"></td>
+                    <td><input type="number" name="subtotal[]" class="subtotal-input" value="{{ items[0]['price'] if items else '' }}" readonly></td>
+                    <td><button type="button" onclick="removeRow(this)">削除</button></td>
+                </tr>
+            </tbody>
+        </table>
+        <button type="button" onclick="addRow()">商品を追加</button><br>
+        <label>発注合計金額: <input type="number" id="orderTotal" name="order_total" value="{{ items[0]['price'] if items else '' }}" readonly></label><br>
+        <button type="submit">発注PDFを作成</button>
+    </form>
+    <script>
+    function updateRow(element) {
+        let row = element.closest('tr');
+        let select = row.querySelector('.item-select');
+        let price = parseFloat(select.options[select.selectedIndex].getAttribute('data-price')) || 0;
+        row.querySelector('.price-input').value = price;
+        let qty = parseInt(row.querySelector('.quantity-input').value) || 0;
+        row.querySelector('.subtotal-input').value = price * qty;
+        updateOrderTotal();
+    }
+    function updateOrderTotal() {
+        let total = 0;
+        document.querySelectorAll('.subtotal-input').forEach(function(input) {
+            total += parseFloat(input.value) || 0;
+        });
+        document.getElementById('orderTotal').value = total;
+    }
+    function addRow() {
+        let tbody = document.getElementById('orderBody');
+        let firstRow = tbody.querySelector('tr');
+        let newRow = firstRow.cloneNode(true);
+        newRow.querySelectorAll('input').forEach(function(input) {
+            if (input.classList.contains('quantity-input')) input.value = 1;
+            else input.value = '';
+        });
+        newRow.querySelector('.item-select').selectedIndex = 0;
+        newRow.querySelector('.price-input').value = newRow.querySelector('.item-select').options[0].getAttribute('data-price');
+        newRow.querySelector('.subtotal-input').value = newRow.querySelector('.price-input').value;
+        tbody.appendChild(newRow);
+        updateOrderTotal();
+    }
+    function removeRow(btn) {
+        let tbody = document.getElementById('orderBody');
+        if (tbody.rows.length > 1) {
+            btn.closest('tr').remove();
+            updateOrderTotal();
+        }
+    }
+    document.querySelectorAll('.item-select, .quantity-input').forEach(function(el) {
+        el.addEventListener('change', function() { updateRow(el); });
+    });
+    </script>
+    <a href="{{ url_for('home') }}">メイン画面に戻る</a>
+    </div>
+</body>
+</html>
