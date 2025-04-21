@@ -33,7 +33,7 @@ def close_connection(exception):
         db.close()
 
 # ---------------------------------------
-# 初回起動時にテーブルを自動生成
+# 初回起動時にテーブル・ダミーデータを自動生成
 # ---------------------------------------
 
 SCHEMA_FILE = os.path.join(app.root_path, "schema.sql")
@@ -43,10 +43,11 @@ def init_db():
     with open(SCHEMA_FILE, "r", encoding="utf-8") as f:
         db.executescript(f.read())
     db.commit()
+    add_dummy_products()  # スキーマ作成直後にダミーデータ投入
 
 @app.before_request
 def ensure_tables():
-    """最初のリクエストでテーブルが無ければ schema.sql で初期化"""
+    """最初のリクエストでテーブルが無ければ schema.sql + ダミーデータ"""
     db = get_db()
     try:
         db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
@@ -76,30 +77,42 @@ def product_list():
     products = cur.fetchall()
     return render_template("product_list.html", products=products)
 
-# ダミーデータ投入（初回用・手動で呼び出し）
+# -------------------------
+# ダミーデータ投入関数
+# -------------------------
+
 def add_dummy_products():
-    with app.app_context():
-        db = get_db()
-        # 仕入先
-        suppliers = [
-            ('コーヒー商事', '熊本県熊本市中央区1-1', '999-999-9999', 'kumamotocafe@kuma.com', 'info@coffee.com'),
-            ('紅茶トレード', '東京都新宿区2-2', '888-888-8888', 'tokyo@tea.com', 'info@tea.com'),
-            ('スイーツ流通', '大阪府大阪市北区3-3', '777-777-7777', 'osaka@sweets.com', 'info@sweets.com')
-        ]
-        for name, address, phone, email, contact in suppliers:
-            db.execute('INSERT INTO Supplier (name, address, phone, email, contact_info) VALUES (?, ?, ?, ?, ?)', (name, address, phone, email, contact))
-        # 商品
-        products = [
-            ('ブレンドコーヒー', 450, '200g'),
-            ('アールグレイティー', 400, '100g'),
-            ('チーズケーキ', 480, '1ホール'),
-            ('カフェラテ', 500, '10杯分'),
-            ('抹茶ラテ', 520, '10杯分'),
-            ('ショコラケーキ', 530, '1ホール')
-        ]
-        for i, (name, price, order_unit) in enumerate(products):
-            db.execute('INSERT INTO InventoryItem (name, quantity, price, order_unit) VALUES (?, ?, ?, ?)', (name, 10 + i, price, order_unit))
-        db.commit()
+    """テーブル作成直後に 1 回だけ呼び出し"""
+    db = get_db()
+    # すでにデータがあればスキップ
+    if db.execute("SELECT COUNT(*) FROM InventoryItem").fetchone()[0] > 0:
+        return
+    # 仕入先
+    suppliers = [
+        ("コーヒー商事", "熊本県熊本市中央区1-1", "999-999-9999", "kumamotocafe@kuma.com", "info@coffee.com"),
+        ("紅茶トレード", "東京都新宿区2-2", "888-888-8888", "tokyo@tea.com", "info@tea.com"),
+        ("スイーツ流通", "大阪府大阪市北区3-3", "777-777-7777", "osaka@sweets.com", "info@sweets.com")
+    ]
+    for name, address, phone, email, contact in suppliers:
+        db.execute(
+            "INSERT INTO Supplier (name, address, phone, email, contact_info) VALUES (?, ?, ?, ?, ?)",
+            (name, address, phone, email, contact)
+        )
+    # 商品
+    products = [
+        ("ブレンドコーヒー", 450, "200g"),
+        ("アールグレイティー", 400, "100g"),
+        ("チーズケーキ", 480, "1ホール"),
+        ("カフェラテ", 500, "10杯分"),
+        ("抹茶ラテ", 520, "10杯分"),
+        ("ショコラケーキ", 530, "1ホール")
+    ]
+    for i, (name, price, order_unit) in enumerate(products, start=1):
+        db.execute(
+            "INSERT INTO InventoryItem (name, quantity, price, order_unit) VALUES (?, ?, ?, ?)",
+            (name, 10 + i, price, order_unit)
+        )
+    db.commit()
 
 @app.route('/add_item', methods=['GET', 'POST'])
 def add_item():
@@ -388,7 +401,6 @@ def delete_supplier(supplier_id):
 
 
 if __name__ == "__main__":
-    # ローカル開発用: テーブルが無い場合は自動生成
     if not os.path.exists(DATABASE):
         with app.app_context():
             init_db()
