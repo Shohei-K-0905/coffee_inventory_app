@@ -13,6 +13,14 @@ DATABASE = os.environ.get("DB_PATH", "/var/data/coffee_inventory_app.db")
 
 app = Flask(__name__)
 
+# --- 本番環境でも必ずDBとダミーデータを初期化 ---
+with app.app_context():
+    try:
+        db = get_db()
+        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
+    except Exception:
+        init_db()
+
 # ---------------------------------------
 # DB ユーティリティ
 # ---------------------------------------
@@ -120,16 +128,18 @@ def add_item():
         name = request.form['name']
         quantity = int(request.form['quantity'])
         price = float(request.form['price'])
+        order_unit = request.form.get('order_unit', '')
 
         db = get_db()
         db.execute(
-            'INSERT INTO InventoryItem (name, quantity, price) VALUES (?, ?, ?)',
-            (name, quantity, price)
+            'INSERT INTO InventoryItem (name, quantity, price, order_unit) VALUES (?, ?, ?, ?)',
+            (name, quantity, price, order_unit)
         )
         db.commit()
-        return redirect(url_for('index'))
+        return redirect(url_for('show_inventory'))
     
     return render_template('add_item.html')
+
 
 @app.route('/edit_item/<int:item_id>', methods=['GET', 'POST'])
 def edit_item(item_id):
