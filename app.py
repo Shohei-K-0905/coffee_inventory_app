@@ -48,8 +48,16 @@ def init_db():
         db.executescript(f.read())
     db.commit()
 
-@app.before_first_request
+@app.before_request
 def ensure_tables():
+    """リクエスト毎に軽くチェックし、テーブルが無ければ schema.sql で初期化
+    （Flask 3 では before_first_request が削除されたため before_request で代用）"""
+    db = get_db()
+    try:
+        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
+    except sqlite3.OperationalError:
+        init_db()
+
     """アプリ起動後の最初のリクエストでテーブル存在をチェック"""
     db = get_db()
     try:
