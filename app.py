@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g, request, redirect, url_for, send_file, make_response
+from flask import Flask, render_template, g, request, redirect, url_for, send_file
 import sqlite3
 import io
 import os
@@ -6,31 +6,71 @@ from datetime import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
 
-# データベースファイル名を定数として定義
-DATABASE = 'coffee_inventory_app.db'
+# ---------------------------
+# SQLite 設定
+# ---------------------------
+# Render で Disk をマウントした場合は /var/data が書き込み可。
+# 環境変数 DB_PATH があればそれを優先し、なければ /var/data に保存。
+DATABASE = os.environ.get("DB_PATH", "/var/data/coffee_inventory_app.db")
 
 app = Flask(__name__)
 
+# ---------------------------------------
+# DB コネクション取得ユーティリティ
+# ---------------------------------------
+
 def get_db():
-    # アプリケーションのルートパスとデータベースファイル名を結合して絶対パスを取得
-    db_path = os.path.join(app.root_path, DATABASE)
-    db = getattr(g, '_database', None)
+    """スレッド毎に 1 つだけ SQLite 接続を保持"""
+    db = getattr(g, "_database", None)
     if db is None:
-        db = g._database = sqlite3.connect(db_path)
+        # /var/data フォルダが存在しない場合は作成
+        os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
+        db = g._database = sqlite3.connect(DATABASE, detect_types=sqlite3.PARSE_DECLTYPES)
         db.row_factory = sqlite3.Row
     return db
 
 @app.teardown_appcontext
 def close_connection(exception):
-    db = getattr(g, '_database', None)
+    db = getattr(g, "_database", None)
     if db is not None:
         db.close()
 
-@app.route('/')
-def root():
-    return redirect(url_for('home'))
+# ---------------------------------------
+# 初回起動時にテーブルを自動生成
+# ---------------------------------------
 
-@app.route('/product_list')
+SCHEMA_FILE = os.path.join(app.root_path, "schema.sql")
+
+def init_db():
+    """schema.sql を実行してテーブルを作成"""
+    db = get_db()
+    with open(SCHEMA_FILE, "r", encoding="utf-8") as f:
+        db.executescript(f.read())
+    db.commit()
+
+@app.before_first_request
+def ensure_tables():
+    """アプリ起動後の最初のリクエストでテーブル存在をチェック"""
+    db = get_db()
+    try:
+        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
+    except sqlite3.OperationalError:
+        # テーブルが無ければ schema.sql を流して初期化
+        init_db()
+
+# ---------------------------------------
+# ルーティング（既存コードをほぼそのまま）
+# ---------------------------------------
+
+@app.route("/")
+def root():
+    return redirect(url_for("home"))
+
+@app.route("/home")
+def home():
+    return render_template("home.html")
+
+@app.route("/product_list")
 def product_list():
     db = get_db()
     cur = db.execute('''
@@ -39,7 +79,7 @@ def product_list():
         LEFT JOIN Supplier ON InventoryItem.id % 3 + 1 = Supplier.id
     ''')
     products = cur.fetchall()
-    return render_template('product_list.html', products=products)
+    return render_template("product_list.html", products=products)
 
 # ダミーデータ投入（初回用・手動で呼び出し）
 def add_dummy_products():
@@ -357,6 +397,9 @@ def delete_supplier(supplier_id):
 
 
 
-if __name__ == '__main__':
-    #init_db()  # 初回のみ実行しDBを初期化
+if __name__ == "__main__":
+    # ローカル開発用: テーブルが無い場合は自動生成
+    if not os.path.exists(DATABASE):
+        with app.app_context():
+            init_db()
     app.run(debug=True)
