@@ -13,14 +13,6 @@ DATABASE = os.environ.get("DB_PATH", "/var/data/coffee_inventory_app.db")
 
 app = Flask(__name__)
 
-# --- 本番環境でも必ずDBとダミーデータを初期化 ---
-with app.app_context():
-    try:
-        db = get_db()
-        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
-    except Exception:
-        init_db()
-
 # ---------------------------------------
 # DB ユーティリティ
 # ---------------------------------------
@@ -408,7 +400,13 @@ def delete_supplier(supplier_id):
     db.commit()
     return redirect(url_for('show_suppliers'))
 
-
+# --- 本番環境でも必ずDBとダミーデータを初期化 ---
+with app.app_context():
+    try:
+        db = get_db()
+        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
+    except Exception:
+        init_db()
 
 if __name__ == "__main__":
     if not os.path.exists(DATABASE):
