@@ -9,21 +9,18 @@ from reportlab.pdfgen import canvas
 # ---------------------------
 # SQLite 設定
 # ---------------------------
-# Render で Disk をマウントした場合は /var/data が書き込み可。
-# 環境変数 DB_PATH があればそれを優先し、なければ /var/data に保存。
 DATABASE = os.environ.get("DB_PATH", "/var/data/coffee_inventory_app.db")
 
 app = Flask(__name__)
 
 # ---------------------------------------
-# DB コネクション取得ユーティリティ
+# DB ユーティリティ
 # ---------------------------------------
 
 def get_db():
     """スレッド毎に 1 つだけ SQLite 接続を保持"""
     db = getattr(g, "_database", None)
     if db is None:
-        # /var/data フォルダが存在しない場合は作成
         os.makedirs(os.path.dirname(DATABASE), exist_ok=True)
         db = g._database = sqlite3.connect(DATABASE, detect_types=sqlite3.PARSE_DECLTYPES)
         db.row_factory = sqlite3.Row
@@ -42,7 +39,6 @@ def close_connection(exception):
 SCHEMA_FILE = os.path.join(app.root_path, "schema.sql")
 
 def init_db():
-    """schema.sql を実行してテーブルを作成"""
     db = get_db()
     with open(SCHEMA_FILE, "r", encoding="utf-8") as f:
         db.executescript(f.read())
@@ -50,24 +46,15 @@ def init_db():
 
 @app.before_request
 def ensure_tables():
-    """リクエスト毎に軽くチェックし、テーブルが無ければ schema.sql で初期化
-    （Flask 3 では before_first_request が削除されたため before_request で代用）"""
+    """最初のリクエストでテーブルが無ければ schema.sql で初期化"""
     db = get_db()
     try:
         db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
     except sqlite3.OperationalError:
-        init_db()
-
-    """アプリ起動後の最初のリクエストでテーブル存在をチェック"""
-    db = get_db()
-    try:
-        db.execute("SELECT 1 FROM InventoryItem LIMIT 1")
-    except sqlite3.OperationalError:
-        # テーブルが無ければ schema.sql を流して初期化
         init_db()
 
 # ---------------------------------------
-# ルーティング（既存コードをほぼそのまま）
+# ルーティング
 # ---------------------------------------
 
 @app.route("/")
@@ -149,11 +136,6 @@ def edit_item(item_id):
     cur = db.execute('SELECT * FROM InventoryItem WHERE id = ?', (item_id,))
     item = cur.fetchone()
     return render_template('edit_item.html', item=item)
-
-
-@app.route('/home')
-def home():
-    return render_template('home.html')
 
 @app.route('/index')
 def show_inventory():
